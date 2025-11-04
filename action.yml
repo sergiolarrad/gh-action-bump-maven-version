@@ -1,4 +1,4 @@
-name: Automated Github Action Maven Version Bump
+name: Automated Github Action Maven Version Bump -SL
 description: Automated version bump for maven pom.xml.
 runs:
   using: 'node20'
@@ -31,8 +31,10 @@ inputs:
     description: 'Prefix for version tags'
     default: ''
     required: false
+  create-tag:
+    description: 'Cretae tag boolean'
+    default: ''
+    required: false
 outputs:
-  tag:
-    description: 'The tag which was just created'
   bumped:
     description: 'True if version was bumped'

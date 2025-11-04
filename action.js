@@ -44,7 +44,6 @@ Toolkit.run(async tools => {
     const event = tools.context.payload
 
     const commitMessage = process.env['INPUT_COMMIT-MESSAGE'] || 'version bump'
-    const tagPrefix = process.env['INPUT_TAG-PREFIX'] || ''
 
     const messages = event.commits ? event.commits.map(commit => commit.message + '\n' + commit.body) : []
     const isVersionBump = messages.map(message => message.toLowerCase().includes(commitMessage)).includes(true)
@@ -63,7 +62,8 @@ Toolkit.run(async tools => {
         const version = (process.env['INPUT_VERSION'] != null) ? process.env['INPUT_VERSION'] : ''
 
         const pom = await parsePom(pomFile);
-        const oldVersion = fetchPath(pom.pomObject, versionPath.split('/').filter(f => f.length > 0));
+        const oldVersion = fetchPath(pom.pomObject, versionPath.split('/').filter(f => f.length > 0)).replace('SNAPSHOT-','');
+        console.log('Old version: '+ oldVersion)
         const newVersion = version == '' ? semver.inc(oldVersion, versionCommand) : version;
         if (newVersion === undefined || newVersion === null) {
             tools.exit.failure(`Failed to find new version from ${oldVersion} given ${versionCommand}`);
@@ -74,7 +74,7 @@ Toolkit.run(async tools => {
         await tools.exec('git', ['config', 'user.name', `"${process.env.GITHUB_USER || 'Automated Version Bump'}"`])
         await tools.exec('git', ['config', 'user.email', `"${process.env.GITHUB_EMAIL || 'gh-action-bump-maven-version@users.noreply.github.com'}"`])
 
-        const command = bumpCommand.replace('@OLD_VERSION@', oldVersion).replace('@NEW_VERSION@', newVersion)
+        const command = bumpCommand.replace('@OLD_VERSION@', oldVersion).replace('@NEW_VERSION@', 'SNAPSHOT-'+newVersion)
         const commandArray = command.split(' ')
         const cmd = commandArray[0]
         const args = commandArray.splice(1)
@@ -84,10 +84,7 @@ Toolkit.run(async tools => {
 
         const remoteRepo = `https://${process.env.GITHUB_ACTOR}:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`
         console.log(Buffer.from(remoteRepo).toString('base64'))
-        await tools.exec('git', ['tag', tagPrefix+newVersion])
         await tools.exec('git', ['push', remoteRepo])
-        await tools.exec('git', ['push', remoteRepo, '--tags'])
-        core.setOutput('tag', tagPrefix+newVersion)
         core.setOutput('bumped', true)
     } catch (e) {
         tools.log.fatal(e)
