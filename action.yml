@@ -1,0 +1,40 @@
+name: Automated Github Action Maven Version Bump -SL
+description: Automated version bump for maven pom.xml.
+runs:
+  using: 'node20'
+  main: 'action.js'
+branding:
+  icon: chevron-up
+  color: blue
+inputs:
+  pom-file:
+    description: 'Where to find the pom file'
+    default: 'pom.xml'
+    required: false
+  bump-command:
+    description: 'Command to update the version'
+    default: 'mvn org.codehaus.mojo:versions-maven-plugin:set -DnewVersion=@NEW_VERSION@'
+    required: false
+  version-path:
+    description: 'Path to version in pom file'
+    default: '/project/version'
+    required: false
+  version:
+    description: 'Override version detection to set specific version'
+    default: ''
+    required: false
+  commit-message:
+    description: 'Custom commit message for version bump commit'
+    default: 'version bump'
+    required: false
+  tag-prefix:
+    description: 'Prefix for version tags'
+    default: ''
+    required: false
+  create-tag:
+    description: 'Cretae tag boolean'
+    default: ''
+    required: false
+outputs:
+  bumped:
+    description: 'True if version was bumped'
