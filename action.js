@@ -80,7 +80,7 @@ Toolkit.run(async tools => {
         const args = commandArray.splice(1);
         console.log('Running:', cmd, args);
         await tools.exec(cmd, args);
-        await tools.exec('git', ['commit', '-a', '-m', `ci: ${commitMessage} ${newVersion}`]);
+        await tools.exec('git', ['commit', '-a', '-m', `chore(ci): ${commitMessage} ${newVersion}`]);
 
         const remoteRepo = `https://${process.env.GITHUB_ACTOR}:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
         console.log(Buffer.from(remoteRepo).toString('base64'));
